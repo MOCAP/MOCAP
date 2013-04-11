@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sensor_test", "Sensor_test\Sensor_test.vcxproj", "{A16CA91A-C6B4-4808-BDFB-34ECD1065166}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sensor", "Sensor\Sensor.vcxproj", "{F3530F01-D6D6-4C00-A488-FBF94EC4F056}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A16CA91A-C6B4-4808-BDFB-34ECD1065166}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A16CA91A-C6B4-4808-BDFB-34ECD1065166}.Debug|Win32.Build.0 = Debug|Win32
+		{A16CA91A-C6B4-4808-BDFB-34ECD1065166}.Release|Win32.ActiveCfg = Release|Win32
+		{A16CA91A-C6B4-4808-BDFB-34ECD1065166}.Release|Win32.Build.0 = Release|Win32
+		{F3530F01-D6D6-4C00-A488-FBF94EC4F056}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F3530F01-D6D6-4C00-A488-FBF94EC4F056}.Debug|Win32.Build.0 = Debug|Win32
+		{F3530F01-D6D6-4C00-A488-FBF94EC4F056}.Release|Win32.ActiveCfg = Release|Win32
+		{F3530F01-D6D6-4C00-A488-FBF94EC4F056}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
