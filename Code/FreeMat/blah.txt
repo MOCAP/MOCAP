@@ -1,0 +1,11 @@
+s_a = [ 0 1 0 0]; %acceleromter field measurement
+s_s = [ 0 0 0 1]; %magnetic field measurement
+s_w = [ 0 0 1 0]; %gyroscope field measurement
+s_qn1 = [ 0 1 0 0]; %last orientation
+s_qe = [ pi/3 1 1 1];
+d_t = 0.1;
+[v,a] = quarternion_to_axis_angle (script(s_a, s_w, s_s, s_qn1, d_t, s_qe))
+
+
+
+script(s_a, s_w, s_s, s_qn1, d_t)
