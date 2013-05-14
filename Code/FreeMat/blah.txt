@@ -1,11 +1,66 @@
 s_a = [ 0 1 0 0]; %acceleromter field measurement
-s_s = [ 0 0 0 1]; %magnetic field measurement
-s_w = [ 0 0 1 0]; %gyroscope field measurement
+s_s = [ 0 0 0 -1]; %magnetic field measurement
+s_w = [ 0 pi/4 0 0]; %gyroscope field measurement
 s_qn1 = [ 0 1 0 0]; %last orientation
-s_qe = [ pi/3 1 1 1];
+s_qe = [ 0 0 1 0]; %last estimate
+d_t = 1;
+script(s_a, s_w, s_s, s_qn1, d_t, s_qe)
+
+
+
+s_a = [ 0 1 0 0]; %acceleromter field measurement
+s_s = [ 0 0 0 -1]; %magnetic field measurement
+s_w = [ 0 1 0 0]; %gyroscope field measurement
+s_qn1 = [ 0 1 0 0]; %last orientation
+s_qe = [ 0 0 1 0]; %last estimate
+d_t = 1;
+script(s_a, s_w, s_s, s_qn1, d_t, s_qe)
+
+
+
+
+s_a = [ 0 0 0 -1]; %acceleromter field measurement
+s_s = [ 0 1 0 0]; %magnetic field measurement
+s_w = [ 0 0 10*pi/2 0]; %gyroscope field measurement
+s_qn1 = [ -0.7052 0 0.6986 0]; %last orientation
+s_qe = [ 0 0 1 0]; %last estimate
 d_t = 0.1;
+script(s_a, s_w, s_s, s_qn1, d_t, s_qe)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [v,a] = quarternion_to_axis_angle (script(s_a, s_w, s_s, s_qn1, d_t, s_qe))
 
 
 
 script(s_a, s_w, s_s, s_qn1, d_t)
+
+
+
+s_a - accelerometer field measurement
+s_s - magnetic field measurement
+s_w - gyroscope field measurement
+s_qn1 - last orientation
+s_qe - orignal estimate
+s_Q_e - final estimate
+s_Q_e_gyro - final gyro estimate
+Fgb - objective function of accel + mag
+Fg - objective function of accel
+Fb - objective function of mag
+u_t - miu
+d_t - delta time
+

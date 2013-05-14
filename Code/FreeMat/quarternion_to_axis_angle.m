@@ -1,13 +1,18 @@
 function [v, a] = quarternion_to_axis_angle(q)
-    if (q(1) > 1) 
+    
+    if (abs(q(1)) > 1) 
         q = quarternion_normalization (q);
     end
     
-    a = 2 * acos(q(1));
+    %divisor = sqrt( q(2)^2 + q(3)^2 + q(4)^2 );
+    %q = a/divisor;
+    
+    %a = 2 * acos(q(1));
+    a = 2*q(1);
     
     s = sqrt(1 - q(1)^2);
     
-    if (s < 0.001)
+    if (abs(s) < 0.001)
         x = q(2);
         y = q(3);
         z = q(4);
