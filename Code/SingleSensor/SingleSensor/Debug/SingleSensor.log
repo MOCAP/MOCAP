@@ -1,0 +1,36 @@
+﻿Build started 6/3/2013 3:12:07 PM.
+     1>Project "E:\XinGithub\MOCAP\trunk\Code\SingleSensor\SingleSensor\SingleSensor.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\SingleSensor.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         E:\New\VS2010\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt sqllite.cpp
+         sqllite.cpp
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(121): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(122): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(123): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(133): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(134): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(135): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(136): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(161): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(165): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(166): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(171): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(208): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 e:\new\vs2010\vc\include\string.h(105) : see declaration of 'strcpy'
+     1>e:\xingithub\mocap\trunk\code\singlesensor\singlesensor\sqllite.cpp(209): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+       Link:
+         E:\New\VS2010\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\SingleSensor.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.lib" /MACHINE:X86 Debug\Algo_test.obj
+         Debug\sqllite.obj
+         LINK : E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.exe not found or not built by the last incremental link; performing full link
+         SingleSensor.vcxproj -> E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"E:\XinGithub\MOCAP\trunk\Code\SingleSensor\Debug\SingleSensor.exe;#1" /manifest Debug\SingleSensor.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\SingleSensor.unsuccessfulbuild".
+         Touching "Debug\SingleSensor.lastbuildstate".
+     1>Done Building Project "E:\XinGithub\MOCAP\trunk\Code\SingleSensor\SingleSensor\SingleSensor.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.62
