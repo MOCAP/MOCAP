@@ -1,0 +1,40 @@
+﻿Build started 1/15/2014 8:28:27 AM.
+     1>Project "H:\Workspace\VS_2010\MOCAP\Plot_test\Plot_test.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\Plot_test.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         All outputs are up-to-date.
+       ClCompile:
+         e:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"E:\eigen-eigen-5097c01bcdc4\Eigen" /I"E:\glut-3.7.6-bin" /IE:\boost_1_53_0 /I"E:\qwt-6.1.0\src" /I.\GeneratedFiles /I. /IC:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\include /I.\GeneratedFiles\Debug /IC:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\include\QtCore /IC:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\include\QtGui /IC:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\include\QtOpenGL /IC:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\include\QtWidgets /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /D QT_WIDGETS_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+         Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
+         - add -D_WIN32_WINNT=0x0501 to the compiler command line; or
+         - add _WIN32_WINNT=0x0501 to your project's Preprocessor Definitions.
+         Assuming _WIN32_WINNT=0x0501 (i.e. Windows XP target).
+         All outputs are up-to-date.
+       Link:
+         e:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"H:\Workspace\VS_2010\MOCAP\Win32\Debug\\Plot_test.exe" /NOLOGO /LIBPATH:"E:\glut-3.7.6-bin" /LIBPATH:"E:\boost_1_53_0\lib32-msvc-10.0" /LIBPATH:"E:\qwt-6.1.0\lib" /LIBPATH:C:\Qt\Qt5.0.2\5.0.2\msvc2010_opengl\lib qtmaind.lib Qt5Cored.lib Qt5Guid.lib Qt5OpenGLd.lib Qt5Widgetsd.lib qwtd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Plot_test.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"H:\Workspace\VS_2010\MOCAP\Win32\Debug\Plot_test.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"H:\Workspace\VS_2010\MOCAP\Win32\Debug\Plot_test.lib" /MACHINE:X86 Debug\data_vectors.obj
+         Debug\moc_GLWidget.obj
+         Debug\moc_plot_test.obj
+         Debug\qrc_plot_test.obj
+         Debug\qrc_resources.obj
+         Debug\GLWidget.obj
+         Debug\guicon.obj
+         Debug\main.obj
+         Debug\MainWindow.obj
+         Debug\myPlot.obj
+         Debug\plot_test.obj
+         Debug\quaternion.obj
+         Debug\SimpleSerial.obj
+         LINK : H:\Workspace\VS_2010\MOCAP\Win32\Debug\\Plot_test.exe not found or not built by the last incremental link; performing full link
+         Plot_test.vcxproj -> H:\Workspace\VS_2010\MOCAP\Win32\Debug\Plot_test.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"H:\Workspace\VS_2010\MOCAP\Win32\Debug\\Plot_test.exe;#1" /manifest Debug\Plot_test.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\Plot_test.unsuccessfulbuild".
+         Touching "Debug\Plot_test.lastbuildstate".
+     1>Done Building Project "H:\Workspace\VS_2010\MOCAP\Plot_test\Plot_test.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:05.17
