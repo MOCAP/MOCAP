@@ -197,13 +197,13 @@ void filterUpdate(QQuaternion * orientation_state, float w_x, float w_y, float w
 	
 	float gamma = beta/(Miu/delta_t+beta);
 	//float gamma = 0;
-
+	/*
 	cout << "Counter " << counter << "\n";
 	cout << "Gyro sens  Mag: " << gyro_vals.length() << "\n";
 	cout << "Gyro deriv Mag: " << gyro_derivative.length() << "\n";
 	cout << "Miu: " << Miu << "\n";
 	cout << "Gamma: " << gamma << "\n";
-
+	*/
 
 	//Combined filter
 	QQuaternion fused_state = gamma*accel_orientation_estimate + (1-gamma)*gyro_orientation_estimate;
@@ -222,9 +222,9 @@ void filterUpdate(QQuaternion * orientation_state, float w_x, float w_y, float w
 void Read_arduino()
 {
 	//TODO add code to search for the right port
-	SimpleSerial serial ("COM3",9600);
+	SimpleSerial serial ("COM19",9600);
 	string cur_data = "";
-	boost::regex arduino_data_regex("Time:(\\d*).*a\\/g\\/m:(\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*).*");
+	boost::regex arduino_data_regex("Time:(\\d*).*a\\/g\\/m:(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*).*");
 	boost::match_results<std::string::const_iterator> regex_match_results;
 	
 	
@@ -258,7 +258,7 @@ void Read_arduino()
 			string m_z_string (regex_match_results[10].first, regex_match_results[10].second);
 			m_z = convert_Mag(::atof(m_z_string.c_str()),12);
 
-			QQuaternion Gyro_zero_bias(0, convert_Gyro(-168,15), convert_Gyro(-83,15),convert_Gyro(181,15));
+			QQuaternion Gyro_zero_bias(0, convert_Gyro(-168,15), convert_Gyro(-83,15),convert_Gyro(121,15));
 			accel_data.x_values->push_back(a_x);
 			accel_data.y_values->push_back(a_y);
 			accel_data.z_values->push_back(a_z);
@@ -277,10 +277,11 @@ void Read_arduino()
 
 			//TimeHack
 
-			filterUpdate(Orientation_state,w_x,w_y,w_z,a_x,a_y,a_z,29.0f);
+			filterUpdate(Orientation_state,w_x,w_y,w_z,a_x,a_y,a_z,6.5f);
 
 		} else {
-			//cout << "partial match only " << endl;
+			cout << "partial match only " << endl;
+			cout << cur_data << endl;
 		}
 	}
 
