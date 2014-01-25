@@ -36,8 +36,8 @@ namespace mocap_support {
 		Quaternion<T> operator*=(T & scalar);
 		Quaternion<T> operator/=(T & scalar);
 		Quaternion<T> dot_product(Quaternion multiplcant, Quaternion base);
-		Quaternion<T> Conjugate();
-		Quaternion<T> Inverse();
+		Quaternion<T> conjugate();
+		Quaternion<T> inverse();
 		T get_norm();
 		T get_magnitude();
 		vector<T> get_quaternion_as_vector();
@@ -45,7 +45,7 @@ namespace mocap_support {
 		
 	};
 
-		template <class T>
+	template <class T>
 	Quaternion<T>::Quaternion(){
     
 		//Default constructor, not all that useful 
@@ -145,13 +145,13 @@ namespace mocap_support {
 	}
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::Conjugate()
+	Quaternion<T> Quaternion<T>::conjugate()
 	{
 		return Quaternion<T>(q0,-q1,-q2,-q3);
 	}
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::Inverse()
+	Quaternion<T> Quaternion<T>::inverse()
 	{
 		T norm = get_norm();
 		
