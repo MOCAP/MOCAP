@@ -1,6 +1,9 @@
 // quaternion.h
 
-#pragma once
+/*
+Authored by Xin Jin, Jan 24, 2014
+*/ 
+
 #include <math.h>
 #include <string>
 
@@ -9,7 +12,6 @@ using namespace std;
 namespace mocap_support {
 
 	template <class T>
-	//class __declspec( dllexport ) Quaternion {
 	class Quaternion {
 
 	private:
