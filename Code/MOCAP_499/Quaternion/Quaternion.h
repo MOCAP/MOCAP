@@ -4,12 +4,28 @@
 Authored by Xin Jin, Jan 24, 2014
 */ 
 
+/*
+Ref http://www.songho.ca/math/quaternion/quaternion.html
+*/
+
+#ifndef MOCAP_QUATERNION
+#define MOCAP_QUATERNION
+
+
+
 #include <math.h>
 #include <string>
 
 using namespace std;
 
 namespace mocap_support {
+
+	template <typename T> 
+	struct axis_angle { 
+	  T theta; 
+	  vector<T> axis; 
+	}; 
+
 
 	template <class T>
 	class Quaternion {
@@ -35,11 +51,23 @@ namespace mocap_support {
 		Quaternion<T> operator+=(Quaternion &sum);
 		Quaternion<T> operator*=(T & scalar);
 		Quaternion<T> operator/=(T & scalar);
-		Quaternion<T> dot_product(Quaternion multiplcant, Quaternion base);
+		Quaternion<T> vector_add(Quaternion sum);
+		Quaternion<T> dot_product(Quaternion multiplicant, Quaternion base);
 		Quaternion<T> conjugate();
 		Quaternion<T> inverse();
 		T get_norm();
 		T get_magnitude();
+		T get_angle();
+		vector<T> get_axis();
+
+		T get_q0();
+		T get_q1();
+		T get_q2();
+		T get_q3();
+
+		T get_re();
+		vector<T> get_im();
+
 		vector<T> get_quaternion_as_vector();
 		void normalize();
 		
@@ -145,6 +173,26 @@ namespace mocap_support {
 	}
 
 	template <class T>
+	Quaternion<T> Quaternion<T>::vector_add(Quaternion<T> sum){
+		T aW = sum.q0;  
+		T aX = sum.q1;
+		T aY = sum.q2;
+		T aZ = sum.q3;
+
+		T bW = q0;
+		T bX = q1;
+		T bY = q2;
+		T bZ = q3;
+
+		T sum_q0 = bW;
+		T sum_q1 = aX + bX;
+		T sum_q2 = aY + bY;
+		T sum_q3 = aZ + bZ;
+    
+		return Quaternion(sum_q0,sum_q1,sum_q2,sum_q3);
+	}
+
+	template <class T>
 	Quaternion<T> Quaternion<T>::conjugate()
 	{
 		return Quaternion<T>(q0,-q1,-q2,-q3);
@@ -240,12 +288,12 @@ namespace mocap_support {
 	}
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::dot_product(Quaternion multiplcant, Quaternion base){
+	Quaternion<T> Quaternion<T>::dot_product(Quaternion multiplicant, Quaternion base){
     
-		T aW = multiplcant.q0;  
-		T aX = multiplcant.q1;
-		T aY = multiplcant.q2;
-		T aZ = multiplcant.q3;
+		T aW = multiplicant.q0;  
+		T aX = multiplicant.q1;
+		T aY = multiplicant.q2;
+		T aZ = multiplicant.q3;
 
 		T bW = base.q0;
 		T bX = base.q1;
@@ -257,9 +305,30 @@ namespace mocap_support {
 		T prod_q2 = aY * bY;
 		T prod_q3 = aZ * bZ;
     
-		return new Quaternion(prod_q0,prod_q1,prod_q2,prod_q3);
+		return Quaternion(prod_q0,prod_q1,prod_q2,prod_q3);
 	}
 	
+	template <class T>
+	T Quaternion<T>::get_q0(){
+		return q0;
+	}
+
+	template <class T>
+	T Quaternion<T>::get_q1(){
+		return q1;
+	}
+
+	template <class T>
+	T Quaternion<T>::get_q2(){
+		return q2;
+	}
+
+	template <class T>
+	T Quaternion<T>::get_q3(){
+		return q3;
+	}
+
+
 	template <class T>
 	vector<T> Quaternion<T>::get_quaternion_as_vector(){
 		T q_array[4] = {q0,q1,q2,q3};
@@ -267,4 +336,46 @@ namespace mocap_support {
 		return q_vector;
 	}	
 
+	
+	template <class T>
+	T Quaternion<T>::get_angle(){
+		if(q0 >1) {
+			normalize();
+		}
+
+		return 2*acos(q0);
+	}
+
+	template <class T>
+	vector<T> Quaternion<T>::get_axis(){
+		T axis_array[] = {0,0,1};
+
+		if(get_angle()>0.0001) {
+			T scale_factor = sin(get_angle()/2);
+			axis_array[0] = q1/scale_factor;
+			axis_array[1] =	q2/scale_factor;
+			axis_array[2] =	q3/scale_factor;
+
+		}
+		return vector<T>(axis_array,axis_array+3);
+
+	}
+
+	
+	template <class T>
+	T Quaternion<T>::get_re(){
+		return get_q0();
+	}
+
+	
+	template <class T>
+	vector<T> Quaternion<T>::get_im(){
+
+		T im_array[] = {q0,q1,q2};
+		return vector<T>(im_array,im_array+3);
+	}
+
 }
+
+
+#endif
