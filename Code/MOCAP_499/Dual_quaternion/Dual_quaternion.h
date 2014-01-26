@@ -74,7 +74,7 @@ namespace mocap_support {
 	template <class T>
 	Dual_quaternion<T>::Dual_quaternion(){
 		q_rotation = Quaternion<T>(0,0,0,1);
-		q_translation = Quaternion<T>(1,0,0,0);
+		q_translation = Quaternion<T>(0,0,0,0);
 
 		T screw_array[] = {0,0,1};
 		T translation_array[] = {0,0,0};
@@ -90,12 +90,9 @@ namespace mocap_support {
 	template <class T>
 	Dual_quaternion<T>::Dual_quaternion(Quaternion<T> q_rotation, Quaternion<T> q_translation){
 		this->q_rotation = q_rotation;
-		this->q_translation = q_translation;
-
-		T translation_array[] = {q_translation.get_q1(),q_translation.get_q2(),q_translation.get_q3()};
-
-		this->screw_axis = q_rotation.get_axis();
-		this->translation = q_translation.get_im();
+		this->q_translation = q_translation*q_rotation;
+		this->screw_axis = this->q_rotation.get_axis();
+		this->translation = this->q_translation.get_im();
 		this->theta = 0;
 
 
@@ -111,7 +108,7 @@ namespace mocap_support {
 		this->translation = translation;
 		this->theta = theta;
 		//All lateral shifts on the joints should be done in the Z axis
-		q_translation = Quaternion<T>(1,translation[0],translation[1],translation[2]);
+		q_translation = Quaternion<T>(0,translation[0]/2,translation[1]/2,translation[2]/2);
 	}	
 
 	/*
@@ -123,8 +120,7 @@ namespace mocap_support {
 	}	
 	
 	/*
-	DO NOT USE
-	This is the wikipedia definition, which is not apropriate this project
+	Multiplicant/transform should always be the right hand side 
 	*/
 	template <class T>
 	Dual_quaternion<T> Dual_quaternion<T>::operator*=(Dual_quaternion<T>  & multiplicant){
@@ -155,15 +151,22 @@ namespace mocap_support {
 	Dual_quaternion<T> Dual_quaternion<T>::transform(Dual_quaternion<T> operation){
 	
 		Quaternion<T> temp_q_rotation = operation.q_rot()*q_rotation*operation.q_rot().conjugate();
-		Quaternion<T> rotated_q_translation = operation.q_rot()*operation.q_trans()*operation.q_rot().conjugate();
+
+		Quaternion<T> rotated_q_translation = operation.q_trans();
+		/*Global frame version
+		only use the following line if working in global space ALL the time
+		*/
+		rotated_q_translation = q_rotation*rotated_q_translation*q_rotation.conjugate();
+
+		rotated_q_translation = operation.q_rot()*rotated_q_translation*operation.q_rot().conjugate();
+
 		Quaternion<T> temp_q_translation  = q_translation.vector_add(rotated_q_translation);
 
 		return Dual_quaternion<T> (temp_q_rotation,temp_q_translation);
 	}
 	
 	/*
-		DO NOT USE
-		This is the wikipedia definition, which is not apropriate this project
+		Multiplicant/transform should always be the right hand side 
 	*/
 	template <class T>
 	Dual_quaternion<T> Dual_quaternion<T>::operator*(Dual_quaternion<T>  & multiplicant){
@@ -214,7 +217,7 @@ namespace mocap_support {
 	}
 		
 
-	/*
+	/* 
 
 	*/
 	template <class T>

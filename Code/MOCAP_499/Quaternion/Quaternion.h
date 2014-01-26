@@ -40,17 +40,17 @@ namespace mocap_support {
 		Quaternion(T q1, vector<T> screw_axis);
 		~Quaternion();
         
-		Quaternion<T> operator*(Quaternion &multiplicant);
-		Quaternion<T> operator-(Quaternion & diff);
-		Quaternion<T> operator+(Quaternion & sum);
-		Quaternion<T> operator*(T & scalar);
-		Quaternion<T> operator/(T & scalar);
+		Quaternion<T> operator*(Quaternion<T> &multiplicant);
+		Quaternion<T> operator-(Quaternion<T> & diff);
+		Quaternion<T> operator+(Quaternion<T> & sum);
+		Quaternion<T> operator*(T scalar);
+		Quaternion<T> operator/(T scalar);
 
 		Quaternion<T> operator*=(Quaternion &multiplicant);
 		Quaternion<T> operator-=(Quaternion &diff);
 		Quaternion<T> operator+=(Quaternion &sum);
-		Quaternion<T> operator*=(T & scalar);
-		Quaternion<T> operator/=(T & scalar);
+		Quaternion<T> operator*=(T scalar);
+		Quaternion<T> operator/=(T scalar);
 		Quaternion<T> vector_add(Quaternion sum);
 		Quaternion<T> dot_product(Quaternion multiplicant, Quaternion base);
 		Quaternion<T> conjugate();
@@ -143,11 +143,11 @@ namespace mocap_support {
 
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::operator/=(T &scalar_divisor){
-		q0 /= scalar_divisor;
-		q1 /= scalar_divisor;
-		q2 /= scalar_divisor;
-		q3 /= scalar_divisor;
+	Quaternion<T> Quaternion<T>::operator/=(T scalar){
+		q0 /= scalar;
+		q1 /= scalar;
+		q2 /= scalar;
+		q3 /= scalar;
 
 		return *this;
 	}
@@ -205,7 +205,18 @@ namespace mocap_support {
 		
 		return Quaternion<T>(q0/norm,-q1/norm,-q2/norm,-q3/norm);
 	}
-	
+
+	template <class T>
+	Quaternion<T> Quaternion<T>::operator*=(T scalar){
+		
+		q0 = q0*scalar;
+		q1 = q1*scalar;
+		q2 = q2*scalar;
+		q3 = q3*scalar;
+		
+		return *this;
+	}
+
 	template <class T>
 	Quaternion<T> Quaternion<T>::operator*=(Quaternion & multiplcant){
 
@@ -276,15 +287,15 @@ namespace mocap_support {
 	}
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::operator*(T & scalar_multiplier){
+	Quaternion<T> Quaternion<T>::operator*(T scalar){
     
-		return Quaternion<T>(*this) *= scalar_multiplier;
+		return Quaternion<T>(*this) *= scalar;
 	}
 
 	template <class T>
-	Quaternion<T> Quaternion<T>::operator/(T & scalar_divisor){
+	Quaternion<T> Quaternion<T>::operator/(T scalar){
     
-		return Quaternion<T>(*this) /= scalar_divisor;
+		return Quaternion<T>(*this) /= scalar;
 	}
 
 	template <class T>
