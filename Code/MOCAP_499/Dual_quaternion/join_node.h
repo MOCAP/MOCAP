@@ -16,10 +16,12 @@ namespace mocap_support {
 		Quaternion<T> accelerometer_sensor_data;
 		Quaternion<T> gravity_sensor_data;
 		Quaternion<T> magnetic_sensor_data;
-		
+
+		//STATIC, set by the constructor only
 		Quaternion<T> orientation;
 		Quaternion<T> translation;
-		
+
+		Quaternion<T> sensor_fusion_orientation;	//Orientation that comes out of the sensor algorithm 	
 		Dual_quaternion<T> transformation_global; 
 		Dual_quaternion<T> transformation_delta;
 		
@@ -51,7 +53,7 @@ namespace mocap_support {
 		Dual_quaternion<T> calcTransformation_global(); 
 		
 		Dual_quaternion<T> setTransformation_delta(){return transformation_delta;};
-		Dual_quaternion<T> calcTransformation_delta();
+		Dual_quaternion<T> Update_transformation_delta();
 		
 		Joint * getParent(){return parent};
 		Joint * setParent(Joing * _parent){parent = _parent;};
@@ -62,18 +64,29 @@ namespace mocap_support {
 	
 	template <class T>
 	Quaternion<T>::calcOrientation(){
+		//this is not neccesary, see notes about orientation and translation 
 	}
 	
 	template <class T>
 	Quaternion<T>::calcTranslation(){
+		//this is not neccesary, see notes about orientation and translation 
 	}
 	
 	template <class T>
-	Dual_quaternion<T>::calcTransformation_global(){
+	Dual_quaternion<T>::Update_transformation_global(){
+		Update_transformation_delta();
+		transformation_global= (parent)*(getTransformation_delta());
 	}
 	
 	template <class T>
-	Dual_quaternion<T>::calcTransformation_delta(){
+	Dual_quaternion<T>::Update_transformation_delta(){
+		//TODO, port the algorithm over and put it in the base quaternion class
+		sensor_fusion_orientation = call_sensor_fusion_algorithm(transformation_global.q_rot(), accelerometer_sensor_data,gravity_sensor_data,magnetic_sensor_data );
+		//Q_global = (Q_parent)(Q_delta), 
+		//(Q_parent*)(Q_global) = (Q_parent*)(Q_parent)(Q_delta)
+		//(Q_parent*)(Q_global) = (Q_delta)
+		//Note, inverse = conjugate in unit quaternions
+		transformation_delta.q_rot() = parent->q_rot().conjugate()*sensor_fusion_orientation;
 	}
 	
 }
