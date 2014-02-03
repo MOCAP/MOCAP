@@ -35,13 +35,16 @@ namespace mocap_support {
 		Joint_node(Quaternion<T> orientation,Quaternion<T> translation,Joint_node * _parent,Joint_node_type _node_type = revolute);
 		Joint_node(vector<T> screw_axis,vector<T> translation,Joint_node * _parent,T theta=0,Joint_node_type _node_type = revolute);
 		
-		
-		Quaternion<T> getAccelerometer_sensor_data();
-		void setAccelerometer_sensor_data(Quaternion<T> _accelerometer_sensor_data);
-		Quaternion<T> getGyro_sensor_data();
-		void setGyro_sensor_data(Quaternion<T> _Gyro_sensor_data);
-		Quaternion<T> getMagnetic_sensor_data();
+		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data);
+		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data,Quaternion<T> _magnetic_sensor_data);
 		void setMagnetic_sensor_data(Quaternion<T> _magnetic_sensor_data);
+		void setGyro_sensor_data(Quaternion<T> _gyro_sensor_data);	
+		void setAccelerometer_sensor_data(Quaternion<T> _accelerometer_sensor_data);
+						
+		Quaternion<T> getAccelerometer_sensor_data();
+		Quaternion<T> getGyro_sensor_data();
+		Quaternion<T> getMagnetic_sensor_data();
+
 		
 		Quaternion<T> getOrientation();
 		void calcOrientation();
@@ -191,7 +194,20 @@ namespace mocap_support {
 	void Joint_node<T>::setMagnetic_sensor_data(Quaternion<T> _magnetic_sensor_data){	
 		magnetic_sensor_data = _magnetic_sensor_data;
 	}
-			
+
+	template <class T>
+	void Joint_node<T>::update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data,Quaternion<T> _magnetic_sensor_data){
+		setMagnetic_sensor_data(_magnetic_sensor_data);
+		setGyro_sensor_data(_Gyro_sensor_data);
+		setAccelerometer_sensor_data(_accelerometer_sensor_data);
+	}
+	
+	template <class T>
+	void Joint_node<T>::update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data){
+		setMagnetic_sensor_data(_magnetic_sensor_data);
+		setGyro_sensor_data(_Gyro_sensor_data);
+		setAccelerometer_sensor_data(_accelerometer_sensor_data);
+	}
 	template <class T>
 	void Joint_node<T>::calcOrientation(){
 		//this is not neccesary, see notes about orientation and translation 

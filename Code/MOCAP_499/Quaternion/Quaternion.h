@@ -65,6 +65,11 @@ namespace mocap_support {
 		T get_q2();
 		T get_q3();
 
+		T w();
+		T x();
+		T y();
+		T z();
+
 		T get_re();
 		vector<T> get_im();
 
@@ -336,6 +341,26 @@ namespace mocap_support {
 
 	template <class T>
 	T Quaternion<T>::get_q3(){
+		return q3;
+	}
+
+		template <class T>
+	T Quaternion<T>::w(){
+		return q0;
+	}
+
+	template <class T>
+	T Quaternion<T>::x(){
+		return q1;
+	}
+
+	template <class T>
+	T Quaternion<T>::y(){
+		return q2;
+	}
+
+	template <class T>
+	T Quaternion<T>::z(){
 		return q3;
 	}
 
