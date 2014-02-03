@@ -63,7 +63,7 @@ namespace mocap_support {
 		void setParent(Joint_node * _parent);
 		
 		list<Joint_node*> getChildren();
-		bool addChild(Joint_node * child);
+		void addChild(Joint_node * child);
 	};
 	
 	template <class T>
@@ -103,6 +103,8 @@ namespace mocap_support {
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,0);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);	
+
+		parent->addChild(this);
 	}
 	
 	template <class T>
@@ -122,6 +124,8 @@ namespace mocap_support {
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,0);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
+
+		parent->addChild(this);
 	}
 		
 		
@@ -234,6 +238,11 @@ namespace mocap_support {
 		transformation_delta.q_rot() = parent->getTransformation_global().q_rot().conjugate()*sensor_fusion_orientation;
 	}
 	
+	template <class T>
+	void Joint_node<T>::addChild(Joint_node<T> * child){
+		children.push_back(child);
+	}
+
 	template <class T>	
 	void  Joint_node<T>::filterUpdate(){
 
