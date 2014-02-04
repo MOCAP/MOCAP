@@ -18,7 +18,8 @@ namespace mocap_support {
 	class Model {
 	
 	private:
-		std::map<int,Joint_node<T>> table_of_nodes;
+		Joint_node<T>* root;
+		std::map<int,Joint_node<T>*> table_of_nodes;
 		int Model<T>::update_node_sensor(int ID,Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data, T _delta_t_ms);
 		
 	public:
@@ -43,12 +44,12 @@ namespace mocap_support {
 	template<class T>
 	Model<T>::Model( joint_base<T> model_configuration[], int length) {
 		
-		Joint_node<T> root = Joint_node<T>();
+		root = new Joint_node<T>();
 		table_of_nodes[0] = root;
 		
 		//TODO: Do input validation on the array 
 		
-		for (int i = 1; i <= length; i++) {
+		for (int i = 1; i < length; i++) {
 			
 			int parent_ID = model_configuration[i].parent_ID;
 			int joint_ID = model_configuration[i].ID;
@@ -57,11 +58,16 @@ namespace mocap_support {
 			if(table_of_nodes.find(parent_ID) == table_of_nodes.end()){
 				//throw an exception. the parent doesn't exist yet and this model is out of order
 			} else {
-				table_of_nodes[parent_ID].addChild(new Joint_node<T>(Quaternion<T>()
+				//Node creation includes the add to parent operation, no need to redo it
+				Joint_node<T>* child = new Joint_node<T>(Quaternion<T>()
 																	,Quaternion<T>(segment_displacement,quaternion_node_type::translation)
-																	,&(table_of_nodes[parent_ID])
+																	,table_of_nodes[parent_ID]
 																	,Joint_node_type::revolute
-																	,joint_ID));
+																	,joint_ID);
+
+				table_of_nodes[joint_ID] = child;
+
+
 			}
 		}
 	}
@@ -90,7 +96,7 @@ namespace mocap_support {
 	template<class T>
 	int Model<T>::update_model_frame(){
 		//Updating is a recursive process
-		return root.update_frame();
+		return root->update_frame();
 	}
 
 
