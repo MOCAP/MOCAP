@@ -28,13 +28,13 @@ namespace mocap_support {
 		
 		Joint_node * parent;
 		
-		list<Joint_node*> children;
+		vector<Joint_node*> children;
 		
 		Joint_node_type node_type;
 	public:
 		Joint_node();
-		Joint_node(Quaternion<T> orientation,Quaternion<T> translation,Joint_node * _parent,Joint_node_type _node_type = revolute);
-		Joint_node(vector<T> screw_axis,vector<T> translation,Joint_node * _parent,T theta=0,Joint_node_type _node_type = revolute);
+		Joint_node(Quaternion<T> orientation,Quaternion<T> translation,Joint_node * _parent,Joint_node_type _node_type = revolute, int ID =0);
+		Joint_node(vector<T> screw_axis,vector<T> translation,Joint_node * _parent,T theta=0,Joint_node_type _node_type = revolute,int ID =0);
 		
 		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data, T _delta_t_ms);
 		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data,Quaternion<T> _magnetic_sensor_data, T _delta_t_ms);
@@ -55,18 +55,21 @@ namespace mocap_support {
 		Quaternion<T> getTranslation();
 		void calcTranslation();
 		
+		int get_id();
+
 		Dual_quaternion<T> getTransformation_global();
 		Dual_quaternion<T> getTransformation_delta();
 		void setTransformation_delta(Dual_quaternion<T> _transformation_delta);
 		void Update_transformation_delta();
 		void Update_transformation_global();
 		void filterUpdate();
+		int update_frame();
 		
 		Joint_node * getParent();
-		void setParent(Joint_node * _parent);
+		void setParent(Joint_node<T> * _parent);
 		
-		list<Joint_node*> getChildren();
-		void addChild(Joint_node * child);
+		vector<Joint_node*> getChildren();
+		void addChild(Joint_node<T> * child);
 	};
 
 	template <class T>
@@ -83,6 +86,7 @@ namespace mocap_support {
 	Joint_node<T>::Joint_node()
 	{
 		//Base constructor for usage by the root node only
+		ID = 0;
 		setParent(this);
 		q_orientation = Quaternion<T>();
 		q_translation = Quaternion<T>(0,0,0,0);
@@ -101,8 +105,9 @@ namespace mocap_support {
 	}
 	
 	template <class T>
-	Joint_node<T>::Joint_node(Quaternion<T> _orientation,Quaternion<T> _translation,Joint_node * _parent,Joint_node_type _node_type)
+	Joint_node<T>::Joint_node(Quaternion<T> _orientation,Quaternion<T> _translation,Joint_node * _parent,Joint_node_type _node_type, int _ID)
 	{
+		ID = _ID;
 		setParent(_parent);
 		q_orientation = _orientation;
 		q_translation = _translation;
@@ -118,12 +123,13 @@ namespace mocap_support {
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);	
 
-		parent->addChild(this);
+		parent->addChild(*this);
 	}
 	
 	template <class T>
-	Joint_node<T>::Joint_node(vector<T> _screw_axis,vector<T> _translation,Joint_node * _parent,T _theta,Joint_node_type _node_type)
+	Joint_node<T>::Joint_node(vector<T> _screw_axis,vector<T> _translation,Joint_node * _parent,T _theta,Joint_node_type _node_type, int _ID)
 	{
+		ID = _ID;		
 		setParent(_parent);
 		q_orientation = Quaternion<T>(_theta,_screw_axis);
 		q_translation = Quaternion<T>(0,_translation[0]/2,_translation[1]/2,_translation[2]/2);
@@ -141,7 +147,22 @@ namespace mocap_support {
 
 		parent->addChild(this);
 	}
+	
+	
+	template <class T>	
+	int Joint_node<T>::update_frame(){
+		Update_transformation_global();
 		
+		for (int i=0; i < children.size(); i++) {
+			children[i]->update_frame();
+		 }
+		return 0;
+	}
+		
+	template <class T>
+	int Joint_node<T>::get_id(){
+			return ID;
+	}	
 		
 	template <class T>
 	Joint_node<T>* Joint_node<T>::getParent(){
@@ -154,7 +175,7 @@ namespace mocap_support {
 	}
 	
 	template <class T>
-	list<Joint_node<T>*> Joint_node<T>::getChildren(){
+	vector<Joint_node<T>*> Joint_node<T>::getChildren(){
 		return children;
 	}
 		
