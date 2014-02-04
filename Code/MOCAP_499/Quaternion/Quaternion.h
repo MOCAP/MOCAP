@@ -20,6 +20,16 @@ using namespace std;
 
 namespace mocap_support {
 
+	namespace quaternion_node_type
+	{
+		enum{
+			rotation = 0,
+			translation = 1,
+			data = 2
+			};
+	
+	}
+
 	template <typename T> 
 	struct axis_angle { 
 	  T theta; 
@@ -32,12 +42,14 @@ namespace mocap_support {
 
 	private:
 		T q0,q1,q2,q3;
+		int quaternion_type;
 
 	public:
 		Quaternion();
-		Quaternion(T q0, T q1, T q2,T q3);
-		Quaternion(T q1, T q2,T q3);
-		Quaternion(T q1, vector<T> screw_axis);
+		Quaternion(T q0, T q1, T q2,T q3,int _quaternion_type = quaternion_node_type::rotation);
+		Quaternion(T q1, T q2,T q3,int _quaternion_type = quaternion_node_type::rotation);
+		Quaternion(T theta, vector<T> screw_axis,int _quaternion_type = quaternion_node_type::rotation);
+		Quaternion(vector<T> translation,int _quaternion_type = quaternion_node_type::rotation);
 		~Quaternion();
         
 		Quaternion<T> operator*(Quaternion<T> &multiplicant);
@@ -82,32 +94,38 @@ namespace mocap_support {
 	Quaternion<T>::Quaternion(){
     
 		//Default constructor, not all that useful 
-		this->q0 = 0;
+		this->q0 = 1;
 		this->q1 = 0;
 		this->q2 = 0;
-		this->q3 = 1;
+		this->q3 = 0;
+
+		quaternion_type = quaternion_node_type::rotation;
 	}
 
 	template <class T>
-	Quaternion<T>::Quaternion(T q0, T q1, T q2,T q3){
+	Quaternion<T>::Quaternion(T q0, T q1, T q2,T q3,int _quaternion_type){
     
 		this->q0 = q0;
 		this->q1 = q1;
 		this->q2 = q2;
 		this->q3 = q3;
+
+		quaternion_type = _quaternion_type;
 	}
 
 	template <class T>
-	Quaternion<T>::Quaternion( T q1, T q2,T q3){
+	Quaternion<T>::Quaternion( T q1, T q2,T q3,int _quaternion_type){
     
 		this->q0 = 0;
 		this->q1 = q1;
 		this->q2 = q2;
 		this->q3 = q3;
+
+		quaternion_type = _quaternion_type;
 	}
 	
 		template <class T>
-	Quaternion<T>::Quaternion(T theta, vector<T> screw_axis){
+	Quaternion<T>::Quaternion(T theta, vector<T> screw_axis,int _quaternion_type){
     
 		if(screw_axis.size() != 3) {
 			//TODO
@@ -119,7 +137,25 @@ namespace mocap_support {
 		this->q1 = sin(theta/2)*screw_axis[0]/screw_axis_mag;
 		this->q2 = sin(theta/2)*screw_axis[1]/screw_axis_mag;
 		this->q3 = sin(theta/2)*screw_axis[2]/screw_axis_mag;
+
+		quaternion_type = _quaternion_type;
 	}
+
+	template <class T>
+	Quaternion<T>::Quaternion(vector<T> translation,int _quaternion_type){
+    
+		if(translation.size() != 3) {
+			//TODO
+			//THROW EXCEPTION
+		}
+		q0 = 0;
+		q1 = translation[0]/2;
+		q2 = translation[1]/2;
+		q3 = translation[2]/2;
+
+		quaternion_type = _quaternion_type;
+	}
+
 	
 	template <class T>
 	Quaternion<T>::~Quaternion(){

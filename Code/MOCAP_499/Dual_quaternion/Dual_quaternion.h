@@ -73,8 +73,8 @@ namespace mocap_support {
 	*/
 	template <class T>
 	Dual_quaternion<T>::Dual_quaternion(){
-		q_rotation = Quaternion<T>(1,0,0,0);
-		q_translation = Quaternion<T>(0,0,0,0);
+		q_rotation = Quaternion<T>(1,0,0,0,quaternion_node_type::rotation);
+		q_translation = Quaternion<T>(0,0,0,0,quaternion_node_type::translation);
 
 		T screw_array[] = {0,0,0};
 		T translation_array[] = {0,0,0};
@@ -103,12 +103,12 @@ namespace mocap_support {
 	*/
 	template <class T>
 	Dual_quaternion<T>::Dual_quaternion(vector<T> screw_axis,vector<T> translation,T theta){
-		q_rotation = Quaternion<T>(theta,screw_axis);
+		q_rotation = Quaternion<T>(theta,screw_axis,oriention,quaternion_node_type::rotation);
 		this->screw_axis = screw_axis;
 		this->translation = translation;
 		this->theta = theta;
 		//All lateral shifts on the joints should be done in the Z axis
-		q_translation = (Quaternion<T>(0,translation[0]/2,translation[1]/2,translation[2]/2));
+		q_translation = (Quaternion<T>(translation,quaternion_node_type::translation));
 	}	
 
 	/*
@@ -195,7 +195,7 @@ namespace mocap_support {
 	*/
 	template <class T>		
 	void update_theta(T theta){
-		q_rotation = Quaternion<T>(screw_axis,theta);
+		q_rotation = Quaternion<T>(screw_axis,theta,quaternion_node_type::rotation);
 	}
 	
 	/*
@@ -236,8 +236,6 @@ namespace mocap_support {
 
 	
 };
-
-
 
 
 #endif
