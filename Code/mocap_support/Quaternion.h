@@ -46,8 +46,7 @@ namespace mocap_support {
 
 	public:
 		Quaternion();
-		Quaternion(T q0, T q1, T q2,T q3,int _quaternion_type = quaternion_node_type::rotation);
-		Quaternion(T q1, T q2,T q3,int _quaternion_type = quaternion_node_type::rotation);
+		Quaternion(T q0, T q1, T q2,T q3,int _quaternion_type = quaternion_node_type::data);
 		Quaternion(T theta, vector<T> screw_axis,int _quaternion_type = quaternion_node_type::rotation);
 		Quaternion(vector<T> translation,int _quaternion_type = quaternion_node_type::rotation);
 		~Quaternion();
@@ -106,17 +105,6 @@ namespace mocap_support {
 	Quaternion<T>::Quaternion(T q0, T q1, T q2,T q3,int _quaternion_type){
     
 		this->q0 = q0;
-		this->q1 = q1;
-		this->q2 = q2;
-		this->q3 = q3;
-
-		quaternion_type = _quaternion_type;
-	}
-
-	template <class T>
-	Quaternion<T>::Quaternion( T q1, T q2,T q3,int _quaternion_type){
-    
-		this->q0 = 0;
 		this->q1 = q1;
 		this->q2 = q2;
 		this->q3 = q3;
@@ -236,7 +224,7 @@ namespace mocap_support {
 	template <class T>
 	Quaternion<T> Quaternion<T>::conjugate()
 	{
-		return Quaternion<T>(q0,-q1,-q2,-q3);
+		return Quaternion<T>(q0,-q1,-q2,-q3,quaternion_type);
 	}
 
 	template <class T>

@@ -203,7 +203,7 @@ namespace mocap_support {
 	*/
 	template <class T>	
 	Dual_quaternion<T> Dual_quaternion<T>::conjugate(){
-		return Dual_quaternion(q_rotation.conjugate(),q_translation.conjugate());
+		return Dual_quaternion(q_rotation.conjugate(),q_translation.conjugate()*(-1));
 	}
 	
 	/*

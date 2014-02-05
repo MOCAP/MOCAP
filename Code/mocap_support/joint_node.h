@@ -325,7 +325,7 @@ namespace mocap_support {
 		*/
 
 		//Be wary of this half
-		Quaternion<T> gyro_derivative =(last_estimate*gyro_vals)*(1/2);
+		Quaternion<T> gyro_derivative =(last_estimate*gyro_vals)*(0.5);
 
 
 		Quaternion<T> gyro_orientation_estimate(last_estimate + gyro_derivative*delta_t);
