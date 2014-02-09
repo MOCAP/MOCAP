@@ -61,6 +61,7 @@ namespace mocap_support {
 		*/
 		
 		void update_theta(T theta);
+		void normalize_rotation();
 		Dual_quaternion<T> conjugate();
 		Dual_number<T> norm();
 
@@ -119,7 +120,7 @@ namespace mocap_support {
 	*/
 	template <class T>
 	Dual_quaternion<T>::Dual_quaternion(vector<T> screw_axis,vector<T> translation,T theta){
-		q_rotation = Quaternion<T>(theta,screw_axis,oriention,quaternion_node_type::rotation);
+		q_rotation = Quaternion<T>(theta,screw_axis,quaternion_node_type::rotation);
 		this->screw_axis = screw_axis;
 		this->translation = translation;
 		this->theta = theta;
@@ -134,6 +135,11 @@ namespace mocap_support {
 	Dual_quaternion<T>::~Dual_quaternion(){
 
 	}	
+
+	template <class T>
+	void Dual_quaternion<T>::normalize_rotation(){
+		q_rotation.normalize();
+	}
 	
 	/*
 	Multiplicant/transform should always be the right hand side 
@@ -141,6 +147,8 @@ namespace mocap_support {
 	template <class T>
 	Dual_quaternion<T> Dual_quaternion<T>::operator*=(Dual_quaternion<T>  & multiplicant){
 	
+		Quaternion<T> temp1 = q_rotation*multiplicant.q_trans();
+		Quaternion<T> temp2 = q_translation*multiplicant.q_rot();
 		q_translation = q_rotation*multiplicant.q_trans()+q_translation*multiplicant.q_rot();
 		/** ORDER MATTERS, never do the rotation first**/
 		q_rotation = q_rotation*multiplicant.q_rot();
@@ -197,7 +205,7 @@ namespace mocap_support {
 	*/
 	template <class T>	
 	Dual_quaternion<T> Dual_quaternion<T>::conjugate(){
-		return Dual_quaternion(q_rotation.conjugate(),q_translation);
+		return Dual_quaternion(q_rotation.conjugate(),q_translation.translation_conjugate());
 	}
 	
 	/*

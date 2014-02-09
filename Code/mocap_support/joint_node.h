@@ -29,8 +29,8 @@ namespace mocap_support {
 		int ID;
 
 		//STATIC, set by the constructor only
-		Quaternion<T> q_orientation;
-		Quaternion<T> q_translation;
+		Quaternion<T> q_base_orientation;
+		Quaternion<T> q_base_translation;
 
 		Quaternion<T> sensor_fusion_orientation;	//Orientation that comes out of the sensor algorithm 	
 		Dual_quaternion<T> transformation_global; 
@@ -61,6 +61,9 @@ namespace mocap_support {
 	
 		Quaternion<T> getOrientation();
 		void calcOrientation();
+
+		Quaternion<T> get_sensor_fusion_orientation();
+
 		
 		Quaternion<T> getTranslation();
 		void calcTranslation();
@@ -73,6 +76,7 @@ namespace mocap_support {
 		void Update_transformation_delta();
 		void Update_transformation_global();
 		void filterUpdate();
+		void normalize_rotations();
 		int update_frame();
 		
 		Joint_node * getParent();
@@ -98,18 +102,18 @@ namespace mocap_support {
 		//Base constructor for usage by the root node only
 		ID = 0;
 		setParent(this);
-		q_orientation = Quaternion<T>();
-		q_translation = Quaternion<T>(0,0,0,0);
+		q_base_orientation = Quaternion<T>();
+		q_base_translation = Quaternion<T>(0,0,0,0);
 		
 
-		transformation_delta = Dual_quaternion<T>(q_orientation,q_translation);
+		transformation_delta = Dual_quaternion<T>(q_base_orientation,q_base_translation*q_base_orientation);
 		transformation_global= (parent->getTransformation_global())*(getTransformation_delta());
 		sensor_fusion_orientation = Quaternion<T>();
 		
 		node_type = Joint_node_type::simple;
 		
 		delta_t_ms = 0;
-		accelerometer_sensor_data = Quaternion<T>(0,0,0,0);
+		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
 	}
@@ -119,17 +123,17 @@ namespace mocap_support {
 	{
 		ID = _ID;
 		setParent(_parent);
-		q_orientation = _orientation;
-		q_translation = _translation;
+		q_base_orientation = _orientation;
+		q_base_translation = _translation;
 		
-		transformation_delta = Dual_quaternion<T>(q_orientation,q_translation);
+		transformation_delta = Dual_quaternion<T>(q_base_orientation,q_base_translation*q_base_orientation);
 		transformation_global= (parent->getTransformation_global())*(getTransformation_delta());
 		sensor_fusion_orientation = Quaternion<T>();
 		
 		node_type = _node_type;
 		
 		delta_t_ms = 0;
-		accelerometer_sensor_data = Quaternion<T>(0,0,0,0);
+		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);	
 
@@ -141,17 +145,17 @@ namespace mocap_support {
 	{
 		ID = _ID;		
 		setParent(_parent);
-		q_orientation = Quaternion<T>(_theta,_screw_axis);
-		q_translation = Quaternion<T>(0,_translation[0]/2,_translation[1]/2,_translation[2]/2);
+		q_base_orientation = Quaternion<T>(_theta,_screw_axis);
+		q_base_translation = Quaternion<T>(0,_translation[0]/2,_translation[1]/2,_translation[2]/2);
 		
-		transformation_delta = Dual_quaternion<T>(q_orientation,q_translation);
+		transformation_delta = Dual_quaternion<T>(q_base_orientation,q_base_translation*q_base_orientation);
 		transformation_global= (parent->getTransformation_global())*(getTransformation_delta());
 		sensor_fusion_orientation = Quaternion<T>();
 		
 		node_type = _node_type;
 		
 		delta_t_ms = 0;
-		accelerometer_sensor_data = Quaternion<T>(0,0,0,0);
+		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
 
@@ -161,12 +165,22 @@ namespace mocap_support {
 	
 	template <class T>	
 	int Joint_node<T>::update_frame(){
-		Update_transformation_global();
-		
+		if (ID != 0){
+			Update_transformation_global();
+		}
 		for (int i=0; i < children.size(); i++) {
 			children[i]->update_frame();
 		 }
 		return 0;
+	}
+
+	template<class T>
+	void Joint_node<T>::normalize_rotations(){
+		transformation_global.normalize_rotation();
+
+		for (int i=0; i < children.size(); i++) {
+			children[i]->normalize_rotations();
+		 }
 	}
 		
 	template <class T>
@@ -208,7 +222,12 @@ namespace mocap_support {
 	Quaternion<T> Joint_node<T>::getOrientation(){
 		return orientation;
 	}
-	
+
+	template <class T>
+	Quaternion<T> Joint_node<T>::get_sensor_fusion_orientation(){
+		return sensor_fusion_orientation;
+	}
+
 	template <class T>
 	Quaternion<T> Joint_node<T>::getTranslation(){
 		return translation;
@@ -275,17 +294,23 @@ namespace mocap_support {
 		Update_transformation_delta();
 		//May want to do some work here to counteract floating point error by reinitializing from base data for translation
 		//also may want to do some normalizion at this point too
-		transformation_global= (parent->getTransformation_global())*(getTransformation_delta());
+ 		transformation_global = getTransformation_delta()*(parent->getTransformation_global());
 	}
 	
 	template <class T>
 	void Joint_node<T>::Update_transformation_delta(){
 		filterUpdate();
-		//Q_global = (Q_parent)(Q_delta), 
-		//(Q_parent*)(Q_global) = (Q_parent*)(Q_parent)(Q_delta)
-		//(Q_parent*)(Q_global) = (Q_delta)
+		//Q_global = (Q_delta)(Q_parent), 
+		//(Q_global)(Q_parent*) = (Q_delta)(Q_parent)(Q_parent*), 
+		//(Q_global)(Q_parent*) = (Q_delta)
 		//Note, inverse = conjugate in unit quaternions
-		transformation_delta.q_rot() = parent->getTransformation_global().q_rot().conjugate()*sensor_fusion_orientation;
+
+		Quaternion<T> delta_rot = (sensor_fusion_orientation)*(parent->getTransformation_global().q_rot().conjugate());
+		transformation_delta = Dual_quaternion<T>(delta_rot,q_base_translation*delta_rot);
+		Quaternion<T> temp = q_base_translation*delta_rot;
+		Quaternion<T> temp2 = delta_rot.conjugate()*q_base_translation;
+		//transformation_delta = Dual_quaternion<T>(sensor_fusion_orientation
+		//											,Quaternion<T>(0,0,0,0,mocap_support::quaternion_node_type::translation));
 	}
 	
 	template <class T>
@@ -312,7 +337,14 @@ namespace mocap_support {
 		T delta_t = delta_t_ms/1000;
 		Quaternion<T> gyro_vals = this->gyro_sensor_data;
 		Quaternion<T> accel_vals =this->accelerometer_sensor_data;
-		Quaternion<T> last_estimate = transformation_global.q_rot();
+		Quaternion<T> last_estimate;
+
+		//Doing a NAN check
+		if(transformation_global.q_rot().get_q0() != transformation_global.q_rot().get_q0()){
+				last_estimate = Quaternion<T>();			
+		} else {
+				last_estimate = transformation_global.q_rot();
+		}
 
 	//Gyro calculations
 

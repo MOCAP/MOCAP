@@ -65,6 +65,7 @@ namespace mocap_support {
 		Quaternion<T> vector_add(Quaternion sum);
 		Quaternion<T> dot_product(Quaternion multiplicant, Quaternion base);
 		Quaternion<T> conjugate();
+		Quaternion<T> translation_conjugate();
 		Quaternion<T> inverse();
 		T get_norm();
 		T get_magnitude();
@@ -153,12 +154,20 @@ namespace mocap_support {
 
 	template <class T>
 	T Quaternion<T>::get_norm(){
-		return q0*q0+q1*q1+q2*q2+q3*q3;
+
+		T q0_2 = q0*q0;
+		T q1_2 = q1*q1;
+		T q2_2 = q2*q2;
+		T q3_2 = q3*q3;
+		T norm_val = q0_2+q1_2+q2_2+q3_2;
+		return norm_val;
 	}
 
 	template <class T>
 	T Quaternion<T>::get_magnitude(){
-		return sqrt(get_norm());
+
+		T sqrt_val = sqrt(get_norm());
+		return sqrt_val;
 	}
 
 	template <class T>
@@ -226,6 +235,12 @@ namespace mocap_support {
 	Quaternion<T> Quaternion<T>::conjugate()
 	{
 		return Quaternion<T>(q0,-q1,-q2,-q3,quaternion_type);
+	}
+
+	template <class T>
+	Quaternion<T> Quaternion<T>::translation_conjugate()
+	{
+		return Quaternion<T>(-q0,q1,q2,q3,quaternion_type);
 	}
 
 	template <class T>

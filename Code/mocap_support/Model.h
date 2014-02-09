@@ -30,6 +30,7 @@ namespace mocap_support {
 		
 		Joint_node<T> * get_node(int ID);
 		int update_model_frame();
+		void normalize_rotations();
 
 	};
 
@@ -99,7 +100,11 @@ namespace mocap_support {
 		return root->update_frame();
 	}
 
-
+	template<class T>
+	void Model<T>::normalize_rotations(){
+		//Updating is a recursive process
+		root->normalize_rotations();
+	}
 }
 
 #endif
