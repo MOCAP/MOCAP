@@ -28,7 +28,7 @@ namespace mocap_support {
 		Model<T>( joint_base<T> model_configuration[], int length);
 		
 		
-		Joint_node<T> get_node(int ID);
+		Joint_node<T> * get_node(int ID);
 		int update_model_frame();
 
 	};
@@ -36,7 +36,7 @@ namespace mocap_support {
 
 	template<class T>
 	Model<T>::Model(){
-		Joint_node<T> root = Joint_node<T>();
+		Joint_node<T> * root = new Joint_node<T>();
 		table_of_nodes[0] = root;
 	}
 
@@ -73,9 +73,9 @@ namespace mocap_support {
 	}
 
 	template<class T>
-	Joint_node<T> Model<T>::get_node(int ID){
+	Joint_node<T> * Model<T>::get_node(int ID){
 		if(table_of_nodes.find(ID) == table_of_nodes.end()){
-			return null;
+			return NULL;
 		} else {
 			return table_of_nodes[ID];
 		}

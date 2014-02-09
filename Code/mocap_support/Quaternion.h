@@ -129,6 +129,7 @@ namespace mocap_support {
 		quaternion_type = _quaternion_type;
 	}
 
+
 	template <class T>
 	Quaternion<T>::Quaternion(vector<T> translation,int _quaternion_type){
     

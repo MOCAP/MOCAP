@@ -42,6 +42,7 @@ namespace mocap_support {
 		*/
 		Dual_quaternion();
 		Dual_quaternion(Quaternion<T> q_rotation, Quaternion<T> q_translation);
+		Dual_quaternion(Quaternion<T> q_rotation,vector<T> translation);
 		Dual_quaternion(vector<T> screw_axis,vector<T> translation,T theta=0);
 		~Dual_quaternion();
 		
@@ -92,11 +93,26 @@ namespace mocap_support {
 		this->q_rotation = q_rotation;
 		this->q_translation = q_translation;
 		this->screw_axis = this->q_rotation.get_axis();
-		this->translation = this->q_translation.get_im();
+		this->translation = (q_translation*q_rotation.conjugate()).get_im();
 		this->theta = 0;
 
 
 	}		
+
+	/*
+	Constructor with the rotational and translational quaternions already defined
+	*/
+	template <class T>
+	Dual_quaternion<T>::Dual_quaternion(Quaternion<T> q_rotation,vector<T> translation){
+		this->q_rotation = q_rotation;
+
+		this->q_translation = (Quaternion<T>(translation,quaternion_node_type::translation))*q_rotation;
+		this->screw_axis = this->q_rotation.get_axis();
+		this->translation = translation;
+		this->theta = 0;
+
+
+	}
 
 	/*
 	constructor from base info: rotation axis, translation, theta
@@ -108,7 +124,7 @@ namespace mocap_support {
 		this->translation = translation;
 		this->theta = theta;
 		//All lateral shifts on the joints should be done in the Z axis
-		q_translation = (Quaternion<T>(translation,quaternion_node_type::translation));
+		q_translation = (Quaternion<T>(translation,quaternion_node_type::translation))*q_rotation;
 	}	
 
 	/*
@@ -125,8 +141,9 @@ namespace mocap_support {
 	template <class T>
 	Dual_quaternion<T> Dual_quaternion<T>::operator*=(Dual_quaternion<T>  & multiplicant){
 	
-		q_rotation = q_rotation*multiplicant.q_rot();
 		q_translation = q_rotation*multiplicant.q_trans()+q_translation*multiplicant.q_rot();
+		/** ORDER MATTERS, never do the rotation first**/
+		q_rotation = q_rotation*multiplicant.q_rot();
 		return (*this);
 	}
 	
@@ -141,29 +158,6 @@ namespace mocap_support {
 		return (*this);
 	}
 
-	/*
-	this is the main function that will be used to combine dual quaternions. 
-	This is a redefinition of the multiplier function with modifications made to the translational aspect
-
-	See more details about its usage in the paper I am going to write - Xin
-	*/
-	template <class T>
-	Dual_quaternion<T> Dual_quaternion<T>::transform(Dual_quaternion<T> operation){
-	
-		Quaternion<T> temp_q_rotation = operation.q_rot()*q_rotation*operation.q_rot().conjugate();
-
-		Quaternion<T> rotated_q_translation = operation.q_trans();
-		/*Global frame version
-		only use the following line if working in global space ALL the time
-		*/
-		rotated_q_translation = q_rotation*rotated_q_translation*q_rotation.conjugate();
-
-		rotated_q_translation = operation.q_rot()*rotated_q_translation*operation.q_rot().conjugate();
-
-		Quaternion<T> temp_q_translation  = q_translation.vector_add(rotated_q_translation);
-
-		return Dual_quaternion<T> (temp_q_rotation,temp_q_translation);
-	}
 	
 	/*
 		Multiplicant/transform should always be the right hand side 
@@ -203,7 +197,7 @@ namespace mocap_support {
 	*/
 	template <class T>	
 	Dual_quaternion<T> Dual_quaternion<T>::conjugate(){
-		return Dual_quaternion(q_rotation.conjugate(),q_translation.conjugate()*(-1));
+		return Dual_quaternion(q_rotation.conjugate(),q_translation);
 	}
 	
 	/*

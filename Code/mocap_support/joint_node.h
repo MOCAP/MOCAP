@@ -3,6 +3,7 @@
 
 using namespace std;
 #include <Eigen>
+#include "Dual_quaternion.h"
 
 namespace mocap_support {
 
@@ -272,6 +273,8 @@ namespace mocap_support {
 	template <class T>
 	void Joint_node<T>::Update_transformation_global(){
 		Update_transformation_delta();
+		//May want to do some work here to counteract floating point error by reinitializing from base data for translation
+		//also may want to do some normalizion at this point too
 		transformation_global= (parent->getTransformation_global())*(getTransformation_delta());
 	}
 	
