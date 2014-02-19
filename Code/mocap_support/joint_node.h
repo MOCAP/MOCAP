@@ -3,7 +3,9 @@
 
 using namespace std;
 #include <Eigen>
+#include "Quaternion.h"
 #include "Dual_quaternion.h"
+#include "node_data.h"
 
 namespace mocap_support {
 
@@ -48,6 +50,7 @@ namespace mocap_support {
 		
 		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data, T _delta_t_ms);
 		void update_sensor_data(Quaternion<T> _accelerometer_sensor_data,Quaternion<T> _gyro_sensor_data,Quaternion<T> _magnetic_sensor_data, T _delta_t_ms);
+		void update_sensor_data(node_data_frame frame_data);
 		void setMagnetic_sensor_data(Quaternion<T> _magnetic_sensor_data);
 		void setGyro_sensor_data(Quaternion<T> _gyro_sensor_data);	
 		void setAccelerometer_sensor_data(Quaternion<T> _accelerometer_sensor_data);
@@ -279,6 +282,21 @@ namespace mocap_support {
 
 		delta_t_ms = _delta_t_ms;
 	}
+
+	template <class T>
+	void Joint_node<T>::update_sensor_data(node_data_frame frame_data){
+
+		Quaternion<T> _accelerometer_sensor_data = Quaternion<T>(0,frame_data.ax_value,frame_data.ay_value,frame_data.az_value,mocap_support::quaternion_node_type::data);
+		Quaternion<T> _gyro_sensor_data = Quaternion<T>(0,frame_data.gx_value,frame_data.gy_value,frame_data.gz_value,mocap_support::quaternion_node_type::data);
+		Quaternion<T> _magnetic_sensor_data = Quaternion<T>(0,frame_data.mx_value,frame_data.my_value,frame_data.mz_value,mocap_support::quaternion_node_type::data);
+
+		setMagnetic_sensor_data(_magnetic_sensor_data);
+		setGyro_sensor_data(_gyro_sensor_data);
+		setAccelerometer_sensor_data(_accelerometer_sensor_data);
+
+		delta_t_ms = frame_data.time_delta;
+	}
+
 	template <class T>
 	void Joint_node<T>::calcOrientation(){
 		//this is not neccesary, see notes about orientation and translation 
