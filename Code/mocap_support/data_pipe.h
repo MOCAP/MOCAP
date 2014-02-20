@@ -35,7 +35,7 @@ namespace mocap_support {
 			int insert_data(int node_id,float ax,float ay, float az, float gx, float gy, float gz, float mx, float my, float mz,unsigned int time_val);
 		public:
 			data_pipe(std::string _port_name,int _baud_rate = 9600,std::string regex_string = default_regex);
-			node_data_frame get_next_sample(int id=1);
+			node_data_frame get_next_frame(int id=1);
 			int begin_serial();
 			int Start();
 			int begin_data_acquisition();
@@ -54,21 +54,20 @@ void mocap_support::data_pipe::lock(){
 void mocap_support::data_pipe::unlock(){
 	mtx_.unlock();
 }
-mocap_support::node_data_frame mocap_support::data_pipe::get_next_sample(int _node_id){
+mocap_support::node_data_frame mocap_support::data_pipe::get_next_frame(int _node_id){
 	boost::lock_guard<data_pipe> guard(*this);
 	if(nodes_map.find(_node_id) == nodes_map.end()){
 		return mocap_support::node_data_frame(-1,0,0,0,0,0,0,0,0,0,0);
 	}
 	
-	mocap_support::node_data_frame current_frame = nodes_map[_node_id]->data_values->front();
-	nodes_map[_node_id]->data_values->pop();
+	mocap_support::node_data_frame current_frame = nodes_map[_node_id]->get_next_frame();
 
 	return current_frame;
 }
 
 bool mocap_support::data_pipe::contains_node_data(int _node_id){
 	if(nodes_map.find(_node_id) != nodes_map.end()){
-		if(!(nodes_map[_node_id]->data_values->empty())){
+		if(!(nodes_map[_node_id]->empty())){
 			return true;
 		}
 	}
@@ -84,12 +83,9 @@ int mocap_support::data_pipe::insert_data(int _node_id,float _ax,float _ay, floa
 		//must pass in an initial timestamp
 		nodes_map[_node_id] = new mocap_support::node_data(_node_id,_time_val);
 		return 0;
-	}	
-	float delta_t = _time_val - nodes_map[_node_id]->current_timestamp ;
-	nodes_map[_node_id]->current_timestamp = _time_val;
-	nodes_map[_node_id]->data_values->push(node_data_frame(_node_id,_ax,_ay,_az,_gx,_gy,_gz,_mx,_my,_mz,delta_t));
-	
-	return 0;
+	}
+	return nodes_map[_node_id]->insert_data(_ax,_ay,_az,_gx,_gy,_gz,_mx,_my, _mz,_time_val);
+
 }
 
 mocap_support::data_pipe::data_pipe(std::string _port_name,int _baud_rate,std::string _regex_string) {
@@ -172,7 +168,7 @@ float mocap_support::data_pipe::convert_Accel(float input, int resolution_bits) 
 }
 
 float mocap_support::data_pipe::convert_Gyro(float input, int resolution_bits) {
-	float FS_value = 4.36332313; //Full scale, measured in radians 
+	float FS_value = 2.0*4.36332313; //Full scale, measured in radians 
 	return FS_value*(input/pow(2.0,resolution_bits));
 }
 

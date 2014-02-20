@@ -443,6 +443,7 @@ namespace mocap_support {
 
 		//Combined filter
 		Quaternion<T> fused_state = accel_orientation_estimate*gamma + gyro_orientation_estimate*(1-gamma);
+		//Quaternion<T> fused_state = gyro_orientation_estimate;
 
 		fused_state.normalize();
 		sensor_fusion_orientation = fused_state;
