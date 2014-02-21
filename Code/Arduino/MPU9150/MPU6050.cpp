@@ -77,12 +77,39 @@ int MPU6050::MPU9150_readSensor(int addrL, int addrH){
   return (H<<8)+L;
 }
 
+int MPU6050::MPU9150_readSensor2(int dev_add,int addrL, int addrH){
+  Wire.beginTransmission(dev_add);
+  Wire.write(addrL);
+  Wire.endTransmission(false);
+
+  Wire.requestFrom(dev_add, 1, true);
+  byte L = Wire.read();
+
+  Wire.beginTransmission(dev_add);
+  Wire.write(addrH);
+  Wire.endTransmission(false);
+
+  Wire.requestFrom(dev_add, 1, true);
+  byte H = Wire.read();
+
+  return (H<<8)+L;
+}
+
 int MPU6050::MPU9150_readSensor(int addr){
   Wire.beginTransmission(MPU9150_I2C_ADDRESS);
   Wire.write(addr);
   Wire.endTransmission(false);
 
   Wire.requestFrom(MPU9150_I2C_ADDRESS, 1, true);
+  return Wire.read();
+}
+
+int MPU6050::MPU9150_readSensor2(int dev_add,int addr){
+  Wire.beginTransmission(dev_add);
+  Wire.write(addr);
+  Wire.endTransmission(false);
+
+  Wire.requestFrom(dev_add, 1, true);
   return Wire.read();
 }
 
@@ -98,6 +125,7 @@ int MPU6050::MPU9150_writeSensor(int addr,int data){
 //http://pansenti.wordpress.com/2013/03/26/pansentis-invensense-mpu-9150-software-for-arduino-is-now-on-github/
 //Thank you to pansenti for setup code.
 void MPU6050::MPU9150_setupCompass(){
+  
   MPU9150_I2C_ADDRESS = 0x0C;      //change Adress to Compass
 
   MPU9150_writeSensor(0x0A, 0x00); //PowerDownMode
@@ -110,10 +138,12 @@ void MPU6050::MPU9150_setupCompass(){
   MPU9150_writeSensor(0x25, 0x8C); //Set i2c address at slave0 at 0x0C
   MPU9150_writeSensor(0x26, 0x02); //Set where reading at slave 0 starts
   MPU9150_writeSensor(0x27, 0x88); //set offset at start reading and enable
+  
   MPU9150_writeSensor(0x28, 0x0C); //set i2c address at slv1 at 0x0C
   MPU9150_writeSensor(0x29, 0x0A); //Set where reading at slave 1 starts
   MPU9150_writeSensor(0x2A, 0x81); //Enable at set length to 1
   MPU9150_writeSensor(0x64, 0x01); //overvride register
+  
   MPU9150_writeSensor(0x67, 0x03); //set delay rate
   MPU9150_writeSensor(0x01, 0x80);
 
@@ -123,6 +153,7 @@ void MPU6050::MPU9150_setupCompass(){
   MPU9150_writeSensor(0x64, 0x01); //override register
   MPU9150_writeSensor(0x6A, 0x20); //enable master i2c mode
   MPU9150_writeSensor(0x34, 0x13); //disable slv4
+  
 }
 
 /** Power on and prepare for general usage.
@@ -136,7 +167,7 @@ void MPU6050::initialize() {
     setClockSource(MPU6050_CLOCK_PLL_XGYRO);
     setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-    MPU9150_setupCompass();    
+    //MPU9150_setupCompass();    
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 }
 
@@ -1791,10 +1822,12 @@ bool MPU6050::getIntDataReadyStatus() {
 void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
     
 	//get accel and gyro
-	getMotion6(ax, ay, az, gx, gy, gz);
-<<<<<<< HEAD
+        start_time = millis();
+        I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
+	//delay(1);
 
-        I2Cdev::readBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 21, buffer);
+	getMotion6(ax, ay, az, gx, gy, gz);
+        I2Cdev::readBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 14, buffer);
         *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
         *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
         *az = (((int16_t)buffer[4]) << 8) | buffer[5];
@@ -1803,32 +1836,14 @@ void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int
         *gy = (((int16_t)buffer[10]) << 8) | buffer[11];
         *gz = (((int16_t)buffer[12]) << 8) | buffer[13];
         
-        *mx = (((int16_t)buffer[16]) << 8) | buffer[15];
-        *my = (((int16_t)buffer[18]) << 8) | buffer[17];
-        *mz = (((int16_t)buffer[20]) << 8) | buffer[19];
-        
-=======
->>>>>>> f85148b... Arduino mag update, not working!
-	/*
-	//read mag
-	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
-	delay(10);
-	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-	delay(10);
-        */
-        
-<<<<<<< HEAD
-	//I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU6050_RA_EXT_SENS_DATA_01, 6, buffer);
-	//*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
-        //*my = (((int16_t)buffer[3]) << 8) | buffer[2];
-        //*mz = (((int16_t)buffer[5]) << 8) | buffer[4];	
-        	        
-=======
-	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU6050_RA_EXT_SENS_DATA_01, 6, buffer);
+
+	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
 	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
         *my = (((int16_t)buffer[3]) << 8) | buffer[2];
-        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];	
->>>>>>> f85148b... Arduino mag update, not working!
+        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];	       
+        I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
+        I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x00); //set i2c bypass enable pin to false to disable magnetometer 
+        end_time = millis();
         	
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
