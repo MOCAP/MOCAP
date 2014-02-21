@@ -88,8 +88,8 @@ namespace mocap_support {
 		int get_calibration_state();
 		void set_calibrate_gyro();
 		void set_calibrate_mag();
-		bool calibrate_gyro();
-		bool calibrate_mag();
+		bool calibrate_gyro(int _calibration_count=200);
+		bool calibrate_mag(int _calibration_count=1000);
 		int get_node_id();
 		void lock();
 		void unlock();
@@ -168,13 +168,13 @@ void mocap_support::node_data::set_calibrate_mag(){
 	calibration_state += 4;
 }
 
-bool mocap_support::node_data::calibrate_gyro(){
+bool mocap_support::node_data::calibrate_gyro(int _calibration_count){
 
 	if(!(calibration_state == 2 | calibration_state == 3| calibration_state == 6 | calibration_state == 7)){
 		return false;
 	}
 
-	int calibration_count = 200;
+	int calibration_count = 100;
 
 	if(data_values.size() >= calibration_count) {
 	
@@ -190,21 +190,22 @@ bool mocap_support::node_data::calibrate_gyro(){
 		node_calibration.g_steady_offset_x = gyro_x/(float)calibration_count;
 		node_calibration.g_steady_offset_y = gyro_y/(float)calibration_count;
 		node_calibration.g_steady_offset_z = gyro_z/(float)calibration_count;
-		
+
 		calibration_state -= 2;
+		cout << "Gyro Calibration Complete\r\n";
 		return true;
 	} else {
 		return false;	
 	}
 }
 
-bool mocap_support::node_data::calibrate_mag(){
+bool mocap_support::node_data::calibrate_mag(int _calibration_count){
 	
 	if(!(calibration_state == 4 | calibration_state == 5| calibration_state == 6 | calibration_state == 7)){
 		return false;
 	}
 
-	int calibration_count = 1000;
+	int calibration_count = _calibration_count;
 
 	if(data_values.size() >= calibration_count) {
 	
@@ -243,7 +244,8 @@ bool mocap_support::node_data::calibrate_mag(){
 		node_calibration.m_hard_offset_x = mag_x_min+(mag_x_max-mag_x_min)/(2.0);
 		node_calibration.m_hard_offset_y = mag_y_min+(mag_y_max-mag_y_min)/(2.0);
 		node_calibration.m_hard_offset_z = mag_z_min+(mag_z_max-mag_z_min)/(2.0);
-		
+
+		cout << "Mag Calibration Complete\r\n";
 		calibration_state -= 4;
 		return true;
 	} else {

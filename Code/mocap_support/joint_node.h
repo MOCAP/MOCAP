@@ -24,6 +24,9 @@ namespace mocap_support {
 	class Joint_node
 	{
 	private:
+		Quaternion<T> Grav_ref;
+		//TODO, make this mag_ref a singleton
+		Quaternion<T> Mag_ref;
 		Quaternion<T> accelerometer_sensor_data;
 		Quaternion<T> gyro_sensor_data;
 		Quaternion<T> magnetic_sensor_data;
@@ -79,6 +82,7 @@ namespace mocap_support {
 		void Update_transformation_delta();
 		void Update_transformation_global();
 		void filterUpdate();
+		void filterUpdate2();
 		void normalize_rotations();
 		int update_frame();
 		
@@ -119,6 +123,9 @@ namespace mocap_support {
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
+
+		 Grav_ref = Quaternion<T>(0,0,0,1);
+		 Mag_ref = Quaternion<T>(1,0,0,0);
 	}
 	
 	template <class T>
@@ -139,6 +146,9 @@ namespace mocap_support {
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);	
+
+		 Grav_ref = Quaternion<T>(0,0,0,1);
+		 Mag_ref = Quaternion<T>(1,0,0,0);
 
 		parent->addChild(this);
 	}
@@ -161,6 +171,9 @@ namespace mocap_support {
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
 		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
+
+		 Grav_ref = Quaternion<T>(0,0,0,1);
+		 Mag_ref = Quaternion<T>(1,0,0,0);
 
 		parent->addChild(this);
 	}
@@ -337,12 +350,13 @@ namespace mocap_support {
 	}
 
 	template <class T>	
-	void  Joint_node<T>::filterUpdate(){
+	void  Joint_node<T>::filterUpdate2(){
 
 
 	//CONSTANTS
 		//constant frame of reference for the acceleometer
 		Quaternion<T> Grav_ref(0,0,0,1);
+		Quaternion<T> Mag_ref(0,0,1,0);
 		T alpha = 100;
 		//EQ50
 		T beta = (0.866 * (0.34906585039));
@@ -443,6 +457,190 @@ namespace mocap_support {
 
 		//Combined filter
 		Quaternion<T> fused_state = accel_orientation_estimate*gamma + gyro_orientation_estimate*(1-gamma);
+		//Quaternion<T> fused_state = gyro_orientation_estimate;
+
+		fused_state.normalize();
+		sensor_fusion_orientation = fused_state;
+		//vector<float> * euler_angles= new vector<float>();
+		//cout << "State is ";QuaternionToEuler(fused_state, euler_angles);
+		//counter++;
+
+		}
+
+	template <class T>	
+	void  Joint_node<T>::filterUpdate(){
+
+
+	//CONSTANTS
+		//constant frame of reference for the acceleometer
+
+		T alpha = 100;
+		//EQ50
+		T beta = (0.866 * (0.34906585039));
+		//float beta = (0.866 * (0.00305)); 
+		//EQ51
+		//zeta is not useful until mag is added
+		T zeta = (0.866 * (0.002*4.36332313)); //Max deviation based on nonlinearity factor at max rate
+
+	//DATA Setup
+
+
+
+		T delta_t = delta_t_ms/1000;
+		Quaternion<T> gyro_vals = this->gyro_sensor_data;
+		Quaternion<T> accel_vals =this->accelerometer_sensor_data;
+		Quaternion<T> mag_vals =this->magnetic_sensor_data;
+		Quaternion<T> last_estimate;
+
+		
+		//TODO These are expensive and do not need to be run this many times
+		accel_vals.normalize();
+		mag_vals.normalize();
+
+		//Doing a NAN check
+		if(transformation_global.q_rot().get_q0() != transformation_global.q_rot().get_q0()){
+				last_estimate = Quaternion<T>();			
+		} else {
+				last_estimate = transformation_global.q_rot();
+		}
+
+		if (Mag_ref.w() == 1){
+			Quaternion<T> mag_ref_temp = (last_estimate.conjugate()*mag_vals)*last_estimate;
+			float norm_x_y = sqrt(mag_ref_temp.get_q1()*mag_ref_temp.get_q1() +mag_ref_temp.get_q2()*mag_ref_temp.get_q2());
+			Mag_ref = Quaternion<T>(0,norm_x_y,0,mag_ref_temp.get_q3());
+			//Mag_ref = mag_ref_temp;
+		}
+
+	//Gyro calculations
+
+		/* be wary of the following missing step
+
+		// compute then integrate the estimated quaternion rate
+			//cout << SEq_1 << ":" << SEq_2 << ":" << SEq_3 << ":"<< SEq_4 << "\n";
+			SEq_1 += (SEqDot_omega_1 - (beta * SEqHatDot_1)) * deltat;
+			SEq_2 += (SEqDot_omega_2 - (beta * SEqHatDot_2)) * deltat;
+			SEq_3 += (SEqDot_omega_3 - (beta * SEqHatDot_3)) * deltat;
+			SEq_4 += (SEqDot_omega_4 - (beta * SEqHatDot_4)) * deltat;
+
+		*/
+
+		//Be wary of this half
+		Quaternion<T> gyro_derivative =(last_estimate*gyro_vals)*(0.5);
+
+
+		Quaternion<T> gyro_orientation_estimate(last_estimate + gyro_derivative*delta_t);
+		
+		//normalize the accelerometer values. No need to worry about absolute values since this algo only cares about the accel ratios
+		//gyro values need to be absolute 
+	//Accel Calc
+
+
+		//Miu factor 
+		T Miu = alpha*gyro_derivative.get_magnitude()*delta_t;
+
+		//EQ 21
+		Quaternion<T> Estimated_accel_values = (last_estimate.conjugate()*Grav_ref)*last_estimate;
+		Quaternion<T> f_accel
+			(0, 
+			Estimated_accel_values.x() - accel_vals.x(),
+			Estimated_accel_values.y() - accel_vals.y(),
+			Estimated_accel_values.z() - accel_vals.z());
+		Eigen::Matrix<T, 3,1> f_matrix_accel;
+		f_matrix_accel << f_accel.x()
+						,f_accel.y()
+						,f_accel.z();
+
+
+		Quaternion<T> Estimated_mag_values = (last_estimate.conjugate()*Mag_ref)*last_estimate;
+		Quaternion<T> f_mag
+			(0, 
+			Estimated_mag_values.x() - mag_vals.x(),
+			Estimated_mag_values.y() - mag_vals.y(),
+			Estimated_mag_values.z() - mag_vals.z());
+		//Matrix form of the objective function for matrix mult usage
+		Eigen::Matrix<T, 3,1> f_matrix_mag;
+		f_matrix_mag << f_mag.x()
+						,f_mag.y()
+						,f_mag.z();
+
+
+		//Jacobian is the differentiation of the objective funtion f.  
+		//The following matrix Jacobian is simpflified due to Grav being a constant [0,0,0,1]
+		//EQ 26
+		Eigen::Matrix<T, 3,4> J_mag;
+		J_mag << 
+											  -2*Mag_ref.z()*(last_estimate.y()),	
+											   2*Mag_ref.z()*(last_estimate.z()),	
+			-4*Mag_ref.x()*(last_estimate.y())-2*Mag_ref.z()*(last_estimate.w()),
+			-4*Mag_ref.x()*(last_estimate.z())+2*Mag_ref.z()*(last_estimate.x()),
+
+			-2*Mag_ref.x()*(last_estimate.z())+2*Mag_ref.z()*(last_estimate.x()),	
+			2*Mag_ref.x()*(last_estimate.y())+2*Mag_ref.z()*(last_estimate.w()), 
+			2*Mag_ref.x()*(last_estimate.x())+2*Mag_ref.z()*(last_estimate.z()), 								
+			-2*Mag_ref.x()*(last_estimate.w())+2*Mag_ref.z()*(last_estimate.y()), 
+
+			2*Mag_ref.x()*(last_estimate.y()),
+			2*Mag_ref.x()*(last_estimate.z())-4*Mag_ref.z()*(last_estimate.x()), 
+			2*Mag_ref.x()*(last_estimate.w())-4*Mag_ref.z()*(last_estimate.y()), 
+			2*Mag_ref.x()*(last_estimate.x());
+		
+		Eigen::Matrix<T, 3,4> J_accel;
+		J_accel << 
+			-2*(last_estimate.y())
+			,2*(last_estimate.z())
+			,-2*(last_estimate.w())
+			,2*(last_estimate.x())
+
+			,2*(last_estimate.x())
+			,2*(last_estimate.w())
+			,2*(last_estimate.z())
+			,2*(last_estimate.y())
+					
+			,0
+			,-4*(last_estimate.x())
+			,-4*(last_estimate.y())
+			,0;
+					
+
+		//EQ 34, top half
+
+		Eigen::Matrix<T,4,6> Combined_J_transpose;
+		Combined_J_transpose << J_accel.transpose(),J_mag.transpose();
+
+		Eigen::Matrix<T,6,1> Combined_f;
+		Combined_f << f_matrix_accel,f_matrix_mag;
+
+		Eigen::Matrix<T,4,1> Grad_f_matrix = Combined_J_transpose*Combined_f;
+		//Eigen::Matrix<T,4,1> Grad_f_matrix = J_accel.transpose()*f_matrix_accel;
+
+
+		//EQ 33
+		if(!(Grad_f_matrix.isZero()))
+		{
+			Grad_f_matrix.normalize();
+			Grad_f_matrix *= Miu;
+		}
+
+		Quaternion<T> accel_orientation_estimate(last_estimate.w() - Grad_f_matrix(0,0),
+					 				last_estimate.x() - Grad_f_matrix(1,0),
+									last_estimate.y() - Grad_f_matrix(2,0),
+									last_estimate.z() - Grad_f_matrix(3,0));
+
+	//Fusion Filter
+		
+		T gamma = beta/(Miu/delta_t+beta);
+		//float gamma = 0;
+		/*
+		cout << "Counter " << counter << "\n";
+		cout << "Gyro sens  Mag: " << gyro_vals.length() << "\n";
+		cout << "Gyro deriv Mag: " << gyro_derivative.length() << "\n";
+		cout << "Miu: " << Miu << "\n";
+		cout << "Gamma: " << gamma << "\n";
+		*/
+
+		//Combined filter
+		Quaternion<T> fused_state = accel_orientation_estimate*gamma + gyro_orientation_estimate*(1-gamma);
+		//Quaternion<T> fused_state = accel_orientation_estimate;
 		//Quaternion<T> fused_state = gyro_orientation_estimate;
 
 		fused_state.normalize();
