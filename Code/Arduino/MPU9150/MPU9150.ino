@@ -94,10 +94,10 @@ void loop() {
 
     if (sensor_id == 1) {
          MARG1.getMotion9(&ax, &ay, &az, &gx, &gy, &gz,&mx, &my, &mz);    
-         sensor_id = 2;  
+         sensor_id = 1;  
     } else {
          MARG2.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz); 
-         sensor_id = 1;
+         sensor_id = 2;
     }
     
         // blink LED to indicate activity
@@ -124,9 +124,13 @@ void loop() {
     serial_msg = serial_msg + gx;serial_msg = serial_msg + "|";
     serial_msg = serial_msg + gy;serial_msg = serial_msg + "|";
     serial_msg = serial_msg + gz;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + mx;serial_msg = serial_msg + "|";
+    
+    //Fixing the MPU9150 Mag to Accel discreptancy
     serial_msg = serial_msg + my;serial_msg = serial_msg + "|";
+    serial_msg = serial_msg + mx;serial_msg = serial_msg + "|";
     serial_msg = serial_msg + mz;serial_msg = serial_msg + "|";
+    
+    
     Serial.println(serial_msg);
     
 

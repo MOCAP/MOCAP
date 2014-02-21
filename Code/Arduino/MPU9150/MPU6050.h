@@ -783,6 +783,13 @@ class MPU6050 {
         // DMP_CFG_2 register
         uint8_t getDMPConfig2();
         void setDMPConfig2(uint8_t config);
+        
+                    
+          //added methods for mag access 
+          int MPU9150_readSensor(int addrL, int addrH);
+          int MPU9150_readSensor(int addr);
+          int MPU9150_writeSensor(int addr,int data);
+          void MPU9150_setupCompass();
 
         // special methods for MotionApps 2.0 implementation
         #ifdef MPU6050_INCLUDE_DMP_MOTIONAPPS20
@@ -985,10 +992,13 @@ class MPU6050 {
             uint32_t dmpGetAccelSumOfSquare();
             void dmpOverrideQuaternion(long *q);
             uint16_t dmpGetFIFOPacketSize();
+
+            
         #endif
 
     private:
         uint8_t devAddr;
+        int MPU9150_I2C_ADDRESS;
         uint8_t buffer[14];
 };
 
