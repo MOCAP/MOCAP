@@ -51,6 +51,8 @@ int16_t gx, gy, gz;
 int16_t mx, my, mz;
 int16_t sensor_id;
 unsigned long time;
+unsigned long time_start;
+unsigned long time_end;
 
 #define LED_PIN 13
 bool blinkState = false;
@@ -91,9 +93,8 @@ void setup() {
 void loop() {
     // read raw accel/gyro measurements from device
     // accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-
     if (sensor_id == 1) {
-         MARG1.getMotion9(&ax, &ay, &az, &gx, &gy, &gz,&mx, &my, &mz);    
+         MARG2.getMotion9(&ax, &ay, &az, &gx, &gy, &gz,&mx, &my, &mz);    
          sensor_id = 1;  
     } else {
          MARG2.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz); 
@@ -109,30 +110,14 @@ void loop() {
     //accelgyro.getRotation(&gx, &gy, &gz);
 
     // display tab-separated accel/gyro x/y/z valuesSerial.print("Time: ");
-    time = millis();
-    //prints time since program started
-    
-    serial_msg = "";
-    serial_msg = serial_msg + "ID:";
-    serial_msg = serial_msg + sensor_id;
-    serial_msg = serial_msg + "Time:";
-    serial_msg = serial_msg + time;serial_msg = serial_msg + "\t";
-    serial_msg = serial_msg + "a/g/m:";
-    serial_msg = serial_msg + ax;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + ay;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + az;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + gx;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + gy;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + gz;serial_msg = serial_msg + "|";
-    
-    //Fixing the MPU9150 Mag to Accel discreptancy
-    serial_msg = serial_msg + my;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + mx;serial_msg = serial_msg + "|";
-    serial_msg = serial_msg + mz;serial_msg = serial_msg + "|";
-    
-    
-    Serial.println(serial_msg);
-    
 
+    //prints time since program started
+
+    serial_msg = "";
+    
+    serial_msg = serial_msg + "ID:" +sensor_id +"Time:" + MARG2.start_time+ "a/g/m:" + ax+ "|"+ ay +"|"+ az+ "|"+ gx + "|"+ gy + "|"+ gz + "|"+ my + "|"+ mx + "|"+ (-mz)+ "|";
+
+    Serial.println(serial_msg);
+  
 }
 

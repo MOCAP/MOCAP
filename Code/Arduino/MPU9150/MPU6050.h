@@ -787,7 +787,9 @@ class MPU6050 {
                     
           //added methods for mag access 
           int MPU9150_readSensor(int addrL, int addrH);
+          int MPU9150_readSensor2(int dev_add,int addrL, int addrH);
           int MPU9150_readSensor(int addr);
+          int MPU9150_readSensor2(int dev_add, int addr);
           int MPU9150_writeSensor(int addr,int data);
           void MPU9150_setupCompass();
 
@@ -993,9 +995,10 @@ class MPU6050 {
             void dmpOverrideQuaternion(long *q);
             uint16_t dmpGetFIFOPacketSize();
 
-            
-        #endif
 
+        #endif
+            unsigned long start_time;
+            unsigned long end_time;
     private:
         uint8_t devAddr;
         int MPU9150_I2C_ADDRESS;
