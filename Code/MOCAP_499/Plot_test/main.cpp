@@ -222,9 +222,9 @@ void filterUpdate(QQuaternion * orientation_state, float w_x, float w_y, float w
 void Read_arduino()
 {
 	//TODO add code to search for the right port
-	SimpleSerial serial ("COM19",9600);
+	SimpleSerial serial ("COM7",9600);
 	string cur_data = "";
-	boost::regex arduino_data_regex("Time:(\\d*).*a\\/g\\/m:(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*).*");
+	boost::regex arduino_data_regex("ID:(\\d)Time:(\\d*).*a\\/g\\/m:(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*)\\|(-?\\d*).*");
 	boost::match_results<std::string::const_iterator> regex_match_results;
 	
 	
@@ -237,27 +237,28 @@ void Read_arduino()
 		cout << "Data error, not of MARG data type" << endl;
 	} else {
 		if (regex_match_results[1].matched) {
-			string time_string (regex_match_results[1].first, regex_match_results[1].second);
+			string ID_string (regex_match_results[1].first, regex_match_results[1].second);
+			int ID_val = ::atof(ID_string.c_str());
+			string time_string (regex_match_results[2].first, regex_match_results[2].second);
 			int time_val = ::atof(time_string.c_str());
-			string a_x_string (regex_match_results[2].first, regex_match_results[2].second);
-			a_x = convert_Accel(::atof(a_x_string.c_str()),15);
-			string a_y_string (regex_match_results[3].first, regex_match_results[3].second);
-			a_y = convert_Accel(::atof(a_y_string.c_str()),15);
-			string a_z_string (regex_match_results[4].first, regex_match_results[4].second);
-			a_z = convert_Accel(::atof(a_z_string.c_str()),15);
-			string g_x_string (regex_match_results[5].first, regex_match_results[5].second);
-			w_x = convert_Gyro(::atof(g_x_string.c_str()),15);
-			string g_y_string (regex_match_results[6].first, regex_match_results[6].second);
-			w_y = convert_Gyro(::atof(g_y_string.c_str()),15);
-			string g_z_string (regex_match_results[7].first, regex_match_results[7].second);
-			w_z = convert_Gyro(::atof(g_z_string.c_str()),15);
-			string m_x_string (regex_match_results[8].first, regex_match_results[8].second);
+			string a_x_string (regex_match_results[3].first, regex_match_results[3].second);
+			a_x = convert_Accel(::atof(a_x_string.c_str()),16);
+			string a_y_string (regex_match_results[4].first, regex_match_results[4].second);
+			a_y = convert_Accel(::atof(a_y_string.c_str()),16);
+			string a_z_string (regex_match_results[5].first, regex_match_results[5].second);
+			a_z = convert_Accel(::atof(a_z_string.c_str()),16);
+			string g_x_string (regex_match_results[6].first, regex_match_results[6].second);
+			w_x = convert_Gyro(::atof(g_x_string.c_str()),16);
+			string g_y_string (regex_match_results[7].first, regex_match_results[7].second);
+			w_y = convert_Gyro(::atof(g_y_string.c_str()),16);
+			string g_z_string (regex_match_results[8].first, regex_match_results[8].second);
+			w_z = convert_Gyro(::atof(g_z_string.c_str()),16);
+			string m_x_string (regex_match_results[9].first, regex_match_results[9].second);
 			m_x = convert_Mag(::atof(m_x_string.c_str()),12);
-			string m_y_string (regex_match_results[9].first, regex_match_results[9].second);
+			string m_y_string (regex_match_results[10].first, regex_match_results[10].second);
 			m_y = convert_Mag(::atof(m_y_string.c_str()),12);
-			string m_z_string (regex_match_results[10].first, regex_match_results[10].second);
+			string m_z_string (regex_match_results[11].first, regex_match_results[11].second);
 			m_z = convert_Mag(::atof(m_z_string.c_str()),12);
-
 			QQuaternion Gyro_zero_bias(0, convert_Gyro(-168,15), convert_Gyro(-83,15),convert_Gyro(121,15));
 			accel_data.x_values->push_back(a_x);
 			accel_data.y_values->push_back(a_y);
