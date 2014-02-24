@@ -122,7 +122,7 @@ namespace mocap_support {
 		delta_t_ms = 0;
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
-		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
+		magnetic_sensor_data = Quaternion<T>(0,0,0,1);
 
 		 Grav_ref = Quaternion<T>(0,0,0,1);
 		 Mag_ref = Quaternion<T>(1,0,0,0);
@@ -145,7 +145,7 @@ namespace mocap_support {
 		delta_t_ms = 0;
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
-		magnetic_sensor_data = Quaternion<T>(0,0,0,0);	
+		magnetic_sensor_data = Quaternion<T>(0,0,0,1);	
 
 		 Grav_ref = Quaternion<T>(0,0,0,1);
 		 Mag_ref = Quaternion<T>(1,0,0,0);
@@ -170,7 +170,7 @@ namespace mocap_support {
 		delta_t_ms = 0;
 		accelerometer_sensor_data = Quaternion<T>(0,0,0,-1);
 		gyro_sensor_data = Quaternion<T>(0,0,0,0);
-		magnetic_sensor_data = Quaternion<T>(0,0,0,0);
+		magnetic_sensor_data = Quaternion<T>(0,0,0,1);
 
 		 Grav_ref = Quaternion<T>(0,0,0,1);
 		 Mag_ref = Quaternion<T>(1,0,0,0);
@@ -335,7 +335,7 @@ namespace mocap_support {
 		//(Q_global)(Q_parent*) = (Q_delta)(Q_parent)(Q_parent*), 
 		//(Q_global)(Q_parent*) = (Q_delta)
 		//Note, inverse = conjugate in unit quaternions
-
+		
 		Quaternion<T> delta_rot = (sensor_fusion_orientation)*(parent->getTransformation_global().q_rot().conjugate());
 		transformation_delta = Dual_quaternion<T>(delta_rot,q_base_translation*delta_rot);
 		Quaternion<T> temp = q_base_translation*delta_rot;
@@ -467,6 +467,7 @@ namespace mocap_support {
 
 		}
 
+
 	template <class T>	
 	void  Joint_node<T>::filterUpdate(){
 
@@ -498,6 +499,7 @@ namespace mocap_support {
 		mag_vals.normalize();
 
 		//Doing a NAN check
+		//TODO, this node currently is not recovering from a NAN very well. Could have to add the following to the 
 		if(transformation_global.q_rot().get_q0() != transformation_global.q_rot().get_q0()){
 				last_estimate = Quaternion<T>();			
 		} else {

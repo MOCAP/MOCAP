@@ -94,11 +94,11 @@ void loop() {
     // read raw accel/gyro measurements from device
     // accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
     if (sensor_id == 1) {
-         MARG2.getMotion9(&ax, &ay, &az, &gx, &gy, &gz,&mx, &my, &mz);    
-         sensor_id = 1;  
+         MARG1.getMotion9(&ax, &ay, &az, &gx, &gy, &gz,&mx, &my, &mz);    
+         sensor_id = 2;  
     } else {
          MARG2.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz); 
-         sensor_id = 2;
+         sensor_id = 1;
     }
     
         // blink LED to indicate activity

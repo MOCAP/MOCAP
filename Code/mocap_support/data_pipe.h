@@ -149,7 +149,7 @@ int mocap_support::data_pipe::Start(){
 				m_z = convert_Mag(::atof(m_z_string.c_str()),12);
 			
 				insert_data(node_id,a_x,a_y,a_z,g_x,g_y,g_z,m_x,m_y,m_z,time_val);
-
+				//std::cout << current_data << std::endl;
 			
 			} else {
 				std::cout << "partial match only " << std::endl;

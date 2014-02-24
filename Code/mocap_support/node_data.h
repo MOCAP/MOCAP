@@ -327,8 +327,8 @@ mocap_support::node_data::node_data(int _node_ID,unsigned int _initial_timestamp
 	current_timestamp = _initial_timestamp;
 	node_calibration = calibration_data();
 	calibration_state = 0;
-	set_calibrate_gyro();
-	set_calibrate_mag();
+	//set_calibrate_gyro();
+	//set_calibrate_mag();
 }
 
 mocap_support::calibration_data::calibration_data(float _g_steady_offset_x,float _g_steady_offset_y,float _g_steady_offset_z,float _m_hard_offset_x,float _m_hard_offset_y,float _m_hard_offset_z){
@@ -364,6 +364,8 @@ float mocap_support::node_data::correct_using_calibration(int value_type_id, flo
 			return sense_value;
 			break;		
 	}
+
+	return sense_value;
 }
 
 #endif
